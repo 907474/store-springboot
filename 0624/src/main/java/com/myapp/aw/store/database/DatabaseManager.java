@@ -25,7 +25,7 @@ public class DatabaseManager {
         String createUserTable = "CREATE TABLE IF NOT EXISTS users (" +
                 " id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 " username TEXT NOT NULL UNIQUE," +
-                " password TEXT NOT NULL," +
+                " password TEXT," +
                 " role TEXT NOT NULL" +
                 ");";
 
@@ -41,7 +41,9 @@ public class DatabaseManager {
                 " id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 " user_id INTEGER NOT NULL," +
                 " total_price REAL NOT NULL," +
-                " order_date TEXT NOT NULL," +
+                " order_started_at TEXT," + // NEW COLUMN
+                " created_at TEXT," +
+                " confirmed_at TEXT," +
                 " status TEXT NOT NULL," +
                 " FOREIGN KEY (user_id) REFERENCES users(id)" +
                 ");";
@@ -56,12 +58,18 @@ public class DatabaseManager {
                 " FOREIGN KEY (order_id) REFERENCES orders(id)" +
                 ");";
 
+        String createCustomersTable = "CREATE TABLE IF NOT EXISTS customers (" +
+                " id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                " total_spent REAL NOT NULL DEFAULT 0," +
+                " amount_of_orders INTEGER NOT NULL DEFAULT 0" +
+                ");";
+
         try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
             stmt.execute(createUserTable);
             stmt.execute(createProductTable);
             stmt.execute(createOrdersTable);
             stmt.execute(createOrderItemsTable);
-            System.out.println("[Database] Schema initialized successfully.");
+            stmt.execute(createCustomersTable);
         } catch (SQLException e) {
             System.err.println("Database schema initialization failed: " + e.getMessage());
         }

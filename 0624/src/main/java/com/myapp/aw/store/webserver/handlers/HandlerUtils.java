@@ -21,6 +21,37 @@ public final class HandlerUtils {
 
     private HandlerUtils() {}
 
+    public static String generateEditProductForm(Product product) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<html><head><title>Edit Product</title><style>");
+        sb.append("body { font-family: sans-serif; margin: 2em; }");
+        sb.append("form { background-color: #f9f9f9; padding: 1.5em; border: 1px solid #ddd; border-radius: 5px; max-width: 400px; }");
+        sb.append("input { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }");
+        sb.append("input[type='submit'] { background-color: #007BFF; color: white; cursor: pointer; }");
+        sb.append("</style></head><body>");
+        sb.append("<h1>Edit Product: ").append(escapeHtml(product.getName())).append("</h1>");
+        sb.append("<p><a href='/restock'>&larr; Back to Restock Page</a></p>");
+        sb.append("<form action='/api/products/update' method='post'>");
+        sb.append("<input type='hidden' name='productId' value='").append(product.getId()).append("'>");
+        sb.append("<label for='sku'>SKU:</label><br>");
+        sb.append("<input type='text' id='sku' name='sku' value='").append(escapeHtml(product.getSku())).append("' required><br>");
+        sb.append("<label for='name'>Name:</label><br>");
+        sb.append("<input type='text' id='name' name='name' value='").append(escapeHtml(product.getName())).append("' required><br>");
+        sb.append("<label for='price'>Price:</label><br>");
+        sb.append("<input type='number' step='0.01' id='price' name='price' value='").append(product.getPrice()).append("' required><br>");
+        sb.append("<label for='stock'>Stock:</label><br>");
+        sb.append("<input type='number' id='stock' name='stock' value='").append(product.getStock()).append("' required><br><br>");
+        sb.append("<input type='submit' value='Save Changes'>");
+        sb.append("</form>");
+        sb.append("</body></html>");
+        return sb.toString();
+    }
+
+    public static void redirect(HttpExchange exchange, String location) throws IOException {
+        exchange.getResponseHeaders().set("Location", location);
+        exchange.sendResponseHeaders(302, -1);
+    }
+
     public static Map<String, String> parseGetQuery(String query) {
         if (query == null || query.isEmpty()) {
             return Collections.emptyMap();
@@ -57,38 +88,29 @@ public final class HandlerUtils {
         return sb.toString();
     }
 
-    public static String convertProductListToJson(List<Product> products) {
+    public static String convertProductListToOrderFormTable(List<Product> products) {
         StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (int i = 0; i < products.size(); i++) {
-            Product p = products.get(i);
-            sb.append("{");
-            sb.append("\"id\":").append(p.getId()).append(",");
-            sb.append("\"sku\":\"").append(escapeJson(p.getSku())).append("\",");
-            sb.append("\"name\":\"").append(escapeJson(p.getName())).append("\",");
-            sb.append("\"price\":").append(p.getPrice()).append(",");
-            sb.append("\"stock\":").append(p.getStock());
-            sb.append("}");
-            if (i < products.size() - 1) {
-                sb.append(",");
-            }
+        sb.append("<table>");
+        sb.append("<tr><th>ID</th><th>SKU</th><th>Name</th><th>Price</th><th>Stock</th><th>Quantity to Order</th></tr>");
+        for (Product p : products) {
+            sb.append("<tr>");
+            sb.append("<td>").append(p.getId()).append("</td>");
+            sb.append("<td>").append(escapeHtml(p.getSku())).append("</td>");
+            sb.append("<td>").append(escapeHtml(p.getName())).append("</td>");
+            sb.append("<td>").append(String.format("$%.2f", p.getPrice())).append("</td>");
+            sb.append("<td>").append(p.getStock()).append("</td>");
+            sb.append("<td><input type='number' class='quantity-input' name='quantity_").append(p.getId()).append("' min='0' placeholder='0'></td>");
+            sb.append("</tr>");
         }
-        sb.append("]");
+        sb.append("</table>");
         return sb.toString();
     }
 
     public static String convertUserListToHtmlTable(List<User> users) {
         StringBuilder sb = new StringBuilder();
-        sb.append("<html><head><title>All Users</title><style>");
-        sb.append("body { font-family: sans-serif; margin: 2em; }");
-        sb.append("table { width: 100%; border-collapse: collapse; }");
-        sb.append("th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }");
-        sb.append("th { background-color: #f2f2f2; }");
-        sb.append("tr:nth-child(even) { background-color: #f9f9f9; }");
-        sb.append("a { color: #007BFF; text-decoration: none; }");
-        sb.append("</style></head><body>");
+        sb.append("<html><head><title>All Users</title><style>body{font-family:sans-serif;margin:2em}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background-color:#f2f2f2}tr:nth-child(even){background-color:#f9f9f9}a{color:#007BFF;text-decoration:none}</style></head><body>");
         sb.append("<h1>All Users</h1>");
-        sb.append("<p><a href='/'>&larr; Back to Dashboard</a></p>");
+        sb.append("<p><a href='/admin-dashboard'>&larr; Back to Admin Dashboard</a></p>");
         sb.append("<table>");
         sb.append("<tr><th>ID</th><th>Username</th><th>Role</th></tr>");
         for (User u : users) {
@@ -114,18 +136,33 @@ public final class HandlerUtils {
         sb.append("a { color: #007BFF; text-decoration: none; }");
         sb.append("</style></head><body>");
         sb.append("<h1>All Orders</h1>");
-        sb.append("<p><a href='/'>&larr; Back to Dashboard</a></p>");
+        sb.append("<p><a href='/admin-dashboard'>&larr; Back to Admin Dashboard</a></p>");
 
         if (orders.isEmpty()) {
             sb.append("<p>No orders found.</p>");
         } else {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             for (Order o : orders) {
                 sb.append("<div class='order-card'>");
                 sb.append("<div class='order-header'>Order #").append(o.getId())
                         .append(" | User ID: ").append(o.getUserId())
-                        .append(" | Total: ").append(String.format("$%.2f", o.getTotalPrice()))
-                        .append(" | Date: ").append(o.getOrderDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
-                        .append("</div>");
+                        .append(" | Total: ").append(String.format("$%.2f", o.getTotalPrice()));
+
+                // --- THIS IS THE UPDATED LOGIC ---
+                if (o.getOrderStartedAt() != null) {
+                    sb.append(" | Cart Started: ").append(o.getOrderStartedAt().format(formatter));
+                } else {
+                    sb.append(" | Cart Started: None");
+                }
+
+                if (o.getConfirmedAt() != null) {
+                    sb.append(" | Completed: ").append(o.getConfirmedAt().format(formatter));
+                } else {
+                    sb.append(" | Completed: None");
+                }
+                // --- END OF UPDATE ---
+
+                sb.append("</div>");
                 sb.append("<table>");
                 sb.append("<tr><th>Product Name</th><th>Quantity</th><th>Price at Purchase</th><th>Subtotal</th></tr>");
                 for (OrderItem item : o.getItems()) {
@@ -142,7 +179,6 @@ public final class HandlerUtils {
         sb.append("</body></html>");
         return sb.toString();
     }
-
     public static Map<String, String> parseUrlEncodedFormData(String formData) throws UnsupportedEncodingException {
         Map<String, String> map = new HashMap<>();
         if (formData == null || formData.isEmpty()) {
@@ -167,11 +203,6 @@ public final class HandlerUtils {
         OutputStream os = exchange.getResponseBody();
         os.write(responseBytes);
         os.close();
-    }
-
-    public static String escapeJson(String value) {
-        if (value == null) return "null";
-        return value.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
     public static String escapeHtml(String value) {

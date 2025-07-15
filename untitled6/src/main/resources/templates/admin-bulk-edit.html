@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Bulk Product Management</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f0f8ff; }
+
+        /* Banner Styles */
+        .banner { background-color: #fff; color: #333; padding: 10px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e0e0e0; }
+        .banner-title a { font-size: 1.5em; font-weight: bold; color: #333; text-decoration: none; }
+        .banner-actions { display: flex; align-items: center; }
+        .banner-actions a, .banner-actions form { margin-left: 10px; }
+        .header-btn { color: #333; text-decoration: none; padding: 8px 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .login-logout-btn { background-color: purple; color: yellow; border-color: darkmagenta; font-family: inherit; font-size: 1em; cursor: pointer; }
+        .header-btn:hover { background-color: #333; color: white; }
+        .login-logout-btn:hover { background-color: #6a006a; color: yellow; }
+
+        /* Page Specific Styles */
+        .content-container { max-width: 800px; margin: 40px auto; padding: 20px 40px; background-color: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1, h2 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .bulk-section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .bulk-section:last-child { border-bottom: none; }
+        .action-btn { display: inline-block; padding: 12px 25px; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .download-btn { background-color: #007bff; }
+        .upload-form input[type=file] { display: block; margin-bottom: 15px; }
+        .upload-btn { background-color: #28a745; border: none; cursor: pointer; font-size: 1em; }
+
+        /* Message Styles */
+        .message-container { padding: 15px; margin-bottom: 20px; border-radius: 4px; text-align: center; }
+        .error-message { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .success-message { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .results-container { margin-top: 20px; }
+        .results-list { list-style-type: none; padding-left: 0; font-family: monospace; font-size: 0.9em;}
+        .results-list li { background-color: #f8f9fa; padding: 5px 10px; border-radius: 4px; margin-bottom: 5px; }
+        .results-list h3 { margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments :: banner}"></div>
+
+<div class="content-container">
+    <h1>Bulk Product Management</h1>
+
+    <div th:if="${successMessage}" class="message-container success-message" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="message-container error-message" th:text="${errorMessage}"></div>
+
+    <div class="results-container">
+        <div th:if="${errorDetails != null and !errorDetails.isEmpty()}">
+            <h3>Errors:</h3>
+            <ul class="results-list"><li th:each="error : ${errorDetails}" th:text="${error}" style="background-color: #f8d7da;"></li></ul>
+        </div>
+        <div th:if="${creationDetails != null and !creationDetails.isEmpty()}">
+            <h3>New Products Created:</h3>
+            <ul class="results-list"><li th:each="name : ${creationDetails}" th:text="${name}"></li></ul>
+        </div>
+        <div th:if="${updateDetails != null and !updateDetails.isEmpty()}">
+            <h3>Products Updated:</h3>
+            <ul class="results-list"><li th:each="detail : ${updateDetails}" th:text="${detail}"></li></ul>
+        </div>
+    </div>
+
+    <div class="bulk-section">
+        <h2>Step 1: Download Products</h2>
+        <p>Download the current product list as an Excel file. You can edit details or add new rows (leave Product ID blank for new products).</p>
+        <a th:href="@{/admin/products/download}" class="action-btn download-btn">Download Excel Sheet</a>
+    </div>
+
+    <div class="bulk-section">
+        <h2>Step 2: Upload Products</h2>
+        <p>Upload the modified Excel file to update existing products or create new ones in bulk.</p>
+        <form th:action="@{/admin/products/upload}" method="post" enctype="multipart/form-data" class="upload-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <input type="file" name="file" required accept=".xlsx, .xls">
+            <button type="submit" class="action-btn upload-btn">Upload and Process File</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>All Orders</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f0f8ff; }
+        .banner { background-color: #fff; color: #333; padding: 10px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e0e0e0; }
+        .banner-title a { font-size: 1.5em; font-weight: bold; color: #333; text-decoration: none; }
+        .banner-actions { display: flex; align-items: center; }
+        .banner-actions a, .banner-actions form { margin-left: 10px; }
+        .header-btn { color: #333; text-decoration: none; padding: 8px 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .login-logout-btn { background-color: purple; color: yellow; border-color: darkmagenta; font-family: inherit; font-size: 1em; cursor: pointer; }
+        .content-container { max-width: 1200px; margin: 40px auto; padding: 20px 40px; background-color: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1, h2 { margin-top: 0; }
+        .order-section { margin-top: 40px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f8f8f8; }
+        .pagination-controls { text-align: center; padding: 20px 0; }
+        .pagination-controls a, .pagination-controls span { margin: 0 10px; text-decoration: none; color: #007bff; font-weight: bold; }
+        .pagination-controls .disabled { color: #ccc; pointer-events: none; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments :: banner}"></div>
+<div class="content-container">
+    <h1>All Site Orders</h1>
+
+    <div class="order-section">
+        <h2>Unfinished Orders (In-Progress Carts)</h2>
+        <table>
+            <thead>
+            <tr><th>Cart ID</th><th>Customer ID</th><th>Created Date</th><th>Total Price</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${unfinishedOrdersPage.content}">
+                <td th:text="'T-' + ${order.orderId}"></td>
+                <td th:text="${order.customerId}"></td>
+                <td th:text="${#temporals.format(order.orderCreationTime, 'MMM dd, yyyy HH:mm')}"></td>
+                <td th:text="'$' + ${#numbers.formatDecimal(order.totalPrice, 1, 'COMMA', 2, 'POINT')}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="pagination-controls" th:if="${unfinishedOrdersPage.totalPages > 1}">
+            <a th:if="${unfinishedOrdersPage.hasPrevious()}" th:href="@{/admin/all-orders(unfinishedPage=${unfinishedOrdersPage.number - 1}, finishedPage=${param.finishedPage})}">Previous</a>
+            <span th:unless="${unfinishedOrdersPage.hasPrevious()}" class="disabled">Previous</span>
+            <span>Page [[${unfinishedOrdersPage.number + 1}]] of [[${unfinishedOrdersPage.totalPages}]]</span>
+            <a th:if="${unfinishedOrdersPage.hasNext()}" th:href="@{/admin/all-orders(unfinishedPage=${unfinishedOrdersPage.number + 1}, finishedPage=${param.finishedPage})}">Next</a>
+            <span th:unless="${unfinishedOrdersPage.hasNext()}" class="disabled">Next</span>
+        </div>
+    </div>
+
+    <hr style="margin: 40px 0;">
+
+    <div class="order-section">
+        <h2>Finished Orders (Archived)</h2>
+        <table>
+            <thead>
+            <tr><th>Order ID</th><th>Customer ID</th><th>Placement Date</th><th>Total Price</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${finishedOrdersPage.content}">
+                <td th:text="'F-' + ${order.orderId}"></td>
+                <td th:text="${order.customerId}"></td>
+                <td th:text="${#temporals.format(order.orderPlacementTime, 'MMM dd, yyyy HH:mm')}"></td>
+                <td th:text="'$' + ${#numbers.formatDecimal(order.totalPrice, 1, 'COMMA', 2, 'POINT')}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="pagination-controls" th:if="${finishedOrdersPage.totalPages > 1}">
+            <a th:if="${finishedOrdersPage.hasPrevious()}" th:href="@{/admin/all-orders(finishedPage=${finishedOrdersPage.number - 1}, unfinishedPage=${param.unfinishedPage})}">Previous</a>
+            <span th:unless="${finishedOrdersPage.hasPrevious()}" class="disabled">Previous</span>
+            <span>Page [[${finishedOrdersPage.number + 1}]] of [[${finishedOrdersPage.totalPages}]]</span>
+            <a th:if="${finishedOrdersPage.hasNext()}" th:href="@{/admin/all-orders(finishedPage=${finishedOrdersPage.number + 1}, unfinishedPage=${param.unfinishedPage})}">Next</a>
+            <span th:unless="${finishedOrdersPage.hasNext()}" class="disabled">Next</span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Revenue Report</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f0f8ff; }
+        .banner { background-color: #fff; color: #333; padding: 10px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e0e0e0; }
+        .banner-title a { font-size: 1.5em; font-weight: bold; color: #333; text-decoration: none; }
+        .banner-actions { display: flex; align-items: center; }
+        .banner-actions a, .banner-actions form { margin-left: 10px; }
+        .header-btn { color: #333; text-decoration: none; padding: 8px 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .login-logout-btn { background-color: purple; color: yellow; border-color: darkmagenta; font-family: inherit; font-size: 1em; cursor: pointer; }
+        .content-container { max-width: 1200px; margin: 40px auto; padding: 20px 40px; background-color: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1, h2, h3 { margin-top: 0; }
+        .filter-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+        .filter-form { display: flex; flex-direction: column; gap: 10px; }
+        .filter-form label { font-weight: bold; }
+        .filter-form input, .filter-form select { padding: 8px; }
+        .filter-form button { padding: 8px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        .report-header { text-align: center; margin-bottom: 20px; }
+        .report-header h2 { font-size: 1.8em; }
+        .report-header .total-revenue { font-size: 2.5em; font-weight: bold; color: #28a745; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f8f8f8; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments :: banner}"></div>
+<div class="content-container">
+    <h1>Revenue Report</h1>
+    <div class="filter-section">
+        <form th:action="@{/admin/revenue}" method="get" class="filter-form"><h3>By Month/Year</h3><label for="year">Year:</label><input type="number" name="year" id="year" placeholder="YYYY"><label for="month">Month:</label><input type="number" name="month" id="month" placeholder="1-12"><button type="submit">Filter</button></form>
+        <form th:action="@{/admin/revenue}" method="get" class="filter-form"><h3>By Single Date</h3><label for="date">Date:</label><input type="date" name="date" id="date"><button type="submit">Filter</button></form>
+        <form th:action="@{/admin/revenue}" method="get" class="filter-form"><h3>By Date Range</h3><label for="startDate">Start Date:</label><input type="date" name="startDate" id="startDate"><label for="endDate">End Date:</label><input type="date" name="endDate" id="endDate"><button type="submit">Filter</button></form>
+    </div>
+    <div class="report-header">
+        <h2 th:text="${reportTitle}">Report Title</h2>
+        <div class="total-revenue" th:text="'$' + ${#numbers.formatDecimal(report.totalRevenue(), 1, 'COMMA', 2, 'POINT')}"></div>
+    </div>
+    <h3>Revenue by Product</h3>
+    <table>
+        <thead><tr><th>Product Name</th><th>Quantity Sold</th><th>Total Revenue</th></tr></thead>
+        <tbody>
+        <tr th:each="item : ${report.productRevenueList()}">
+            <td th:text="${item.productName()}"></td>
+            <td th:text="${item.quantitySold()}"></td>
+            <td th:text="'$' + ${#numbers.formatDecimal(item.totalRevenue(), 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

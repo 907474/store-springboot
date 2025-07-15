@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Top Customers</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f0f8ff; }
+        .banner { background-color: #fff; color: #333; padding: 10px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e0e0e0; }
+        .banner-title a { font-size: 1.5em; font-weight: bold; color: #333; text-decoration: none; }
+        .banner-actions { display: flex; align-items: center; }
+        .banner-actions a, .banner-actions form { margin-left: 10px; }
+        .header-btn { color: #333; text-decoration: none; padding: 8px 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .login-logout-btn { background-color: purple; color: yellow; border-color: darkmagenta; font-family: inherit; font-size: 1em; cursor: pointer; }
+        .content-container { max-width: 1000px; margin: 40px auto; padding: 20px 40px; background-color: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1 { margin-top: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f8f8f8; }
+        .customer-row, .order-row-l2 { cursor: pointer; }
+        .customer-row:hover, .order-row-l2:hover { background-color: #f5f5f5; }
+        .details-row, .details-row-l2 { display: none; }
+        .details-row.visible, .details-row-l2.visible { display: table-row; background-color: #fdfdfd;}
+        .details-cell, .details-cell-l2 { padding: 0 !important; border-top: none !important; }
+        .details-table { width: 100%; margin: 10px 0; }
+        .details-table th, .details-table td { padding: 8px 15px 8px 50px; border-bottom: 1px solid #eee; }
+        .pagination-controls { text-align: center; padding: 20px 0; }
+        .pagination-controls a, .pagination-controls span { margin: 0 10px; text-decoration: none; color: #007bff; font-weight: bold; }
+        .pagination-controls .disabled { color: #ccc; pointer-events: none; }
+        .nested-pagination { padding: 10px 0 10px 50px; background-color: #fafafa; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments :: banner}"></div>
+
+<div class="content-container">
+    <h1>Top Customers by Revenue</h1>
+    <table>
+        <thead>
+        <tr><th>Rank</th><th>Username</th><th>Total Spent</th></tr>
+        </thead>
+        <tbody>
+        <th:block th:each="customer, iterStat : ${customerPage.content}">
+            <tr class="customer-row" th:attr="data-customer-id=${customer.customerId()}">
+                <td th:text="${(customerPage.number * customerPage.size) + iterStat.count}"></td>
+                <td th:text="${customer.username()}"></td>
+                <td th:text="'$' + ${#numbers.formatDecimal(customer.totalSpent(), 1, 'COMMA', 2, 'POINT')}"></td>
+            </tr>
+            <tr class="details-row"><td class="details-cell" colspan="3"></td></tr>
+        </th:block>
+        </tbody>
+    </table>
+    <div class="pagination-controls" th:if="${customerPage.totalPages > 1}">
+        <a th:if="${customerPage.hasPrevious()}" th:href="@{/admin/top-customers(page=${customerPage.number - 1})}">Previous</a>
+        <span th:unless="${customerPage.hasPrevious()}" class="disabled">Previous</span>
+        <span>Page [[${customerPage.number + 1}]] of [[${customerPage.totalPages}]]</span>
+        <a th:if="${customerPage.hasNext()}" th:href="@{/admin/top-customers(page=${customerPage.number + 1})}">Next</a>
+        <span th:unless="${customerPage.hasNext()}" class="disabled">Next</span>
+    </div>
+</div>
+
+<div th:if="${false}">
+    <div th:fragment="customerOrdersFragment">
+        <table class="details-table">
+            <thead><tr><th>Order ID</th><th>Date</th><th>Total</th></tr></thead>
+            <tbody>
+            <th:block th:each="order : ${ordersPage.content}">
+<!--                'F-' +-->
+<!--                th:attr="data-order-id="${order.orderId}""-->
+                <tr class="order-row-l2" th:attr="data-order-id='${order.orderId}'">
+                <td th:text="'#' + ${order.orderId}"></td>
+                <td th:text="${#temporals.format(order.orderPlacementTime, 'MMM dd, yyyy')}"></td>
+                <td th:text="'$' + ${#numbers.formatDecimal(order.totalPrice, 1, 'COMMA', 2, 'POINT')}"></td>
+                </tr>
+                <tr class="details-row-l2" style="display: none;"><td class="details-cell-l2" colspan="3"></td></tr>
+            </th:block>
+            </tbody>
+        </table>
+        <div class="pagination-controls nested-pagination" th:if="${ordersPage.totalPages > 1}">
+            <a class="page-link" th:if="${ordersPage.hasPrevious()}" th:href="@{/admin/customer-orders/{id}(id=${customerId}, page=${ordersPage.number - 1})}">Previous</a>
+            <span th:unless="${ordersPage.hasPrevious()}" class="disabled">Previous</span>
+            <span>Page [[${ordersPage.number + 1}]] of [[${ordersPage.totalPages}]]</span>
+            <a class="page-link" th:if="${ordersPage.hasNext()}" th:href="@{/admin/customer-orders/{id}(id=${customerId}, page=${ordersPage.number + 1})}">Next</a>
+            <span th:unless="${ordersPage.hasNext()}" class="disabled">Next</span>
+        </div>
+    </div>
+
+    <table th:fragment="orderDetailsFragment">
+        <thead><tr><th>Product Name</th><th>Quantity</th><th>Price at Purchase</th></tr></thead>
+        <tbody>
+        <tr th:each="item : ${items}">
+            <td th:text="${item.productName()}"></td>
+            <td th:text="${item.quantity()}"></td>
+            <td th:text="'$' + ${#numbers.formatDecimal(item.priceAtPurchase(), 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const contentContainer = document.querySelector('.content-container');
+
+    function fetchAndReplace(url, targetElement) {
+        targetElement.innerHTML = '<td colspan="3">Loading...</td>';
+        fetch(url)
+            .then(response => {
+                if (!response.ok) { throw new Error('Network response was not ok'); }
+                return response.text();
+            })
+            .then(html => { targetElement.innerHTML = html; })
+            .catch(error => {
+                targetElement.innerHTML = '<td colspan="3">Error loading details.</td>';
+                console.error('Error:', error);
+            });
+    }
+
+    contentContainer.addEventListener('click', event => {
+        const customerRow = event.target.closest('.customer-row');
+        const orderRow = event.target.closest('.order-row-l2');
+        const pageLink = event.target.closest('.page-link');
+
+        if (customerRow) {
+            const customerId = customerRow.dataset.customerId;
+            const detailsRow = customerRow.nextElementSibling;
+            const detailsCell = detailsRow.querySelector('.details-cell');
+            const isVisible = detailsRow.classList.contains('visible');
+            document.querySelectorAll('.details-row.visible').forEach(r => {
+                if (r !== detailsRow) {
+                    r.classList.remove('visible');
+                    r.querySelector('.details-cell').innerHTML = '';
+                }
+            });
+
+            if (isVisible) {
+                detailsRow.classList.remove('visible');
+                detailsCell.innerHTML = '';
+            } else {
+                detailsRow.classList.add('visible');
+                fetchAndReplace(`/admin/customer-orders/${customerId}`, detailsCell);
+            }
+        }
+
+        if (orderRow) {
+            event.stopPropagation();
+            const orderId = orderRow.dataset.orderId;
+            const detailsRow = orderRow.nextElementSibling;
+            const detailsCell = detailsRow.querySelector('.details-cell-l2');
+            const isVisible = detailsRow.style.display !== 'none';
+            document.querySelectorAll('.details-row-l2').forEach(r => {
+                if (r !== detailsRow) {
+                    r.style.display = 'none';
+                    r.querySelector('.details-cell-l2').innerHTML = '';
+                }
+            });
+
+            if (isVisible) {
+                detailsRow.style.display = 'none';
+            } else {
+                detailsRow.style.display = 'table-row';
+                if (detailsCell.innerHTML === '') {
+                   fetchAndReplace(`/admin/order-details/${orderId}`, detailsCell);
+                }
+            }
+        }
+
+        if (pageLink) {
+            event.preventDefault();
+            const detailsCell = pageLink.closest('.details-cell');
+            if (detailsCell) {
+                fetchAndReplace(pageLink.href, detailsCell);
+            }
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Most Purchased Products</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f0f8ff; }
+        .banner { background-color: #fff; color: #333; padding: 10px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e0e0e0; }
+        .banner-title a { font-size: 1.5em; font-weight: bold; color: #333; text-decoration: none; }
+        .banner-actions { display: flex; align-items: center; }
+        .banner-actions a, .banner-actions form { margin-left: 10px; }
+        .header-btn { color: #333; text-decoration: none; padding: 8px 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .login-logout-btn { background-color: purple; color: yellow; border-color: darkmagenta; font-family: inherit; font-size: 1em; cursor: pointer; }
+        .content-container { max-width: 1000px; margin: 40px auto; padding: 20px 40px; background-color: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1 { margin-top: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f8f8f8; }
+        .pagination-controls { text-align: center; padding: 20px 0; }
+        .pagination-controls a, .pagination-controls span { margin: 0 10px; text-decoration: none; color: #007bff; font-weight: bold; }
+        .pagination-controls .disabled { color: #ccc; pointer-events: none; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments :: banner}"></div>
+<div class="content-container">
+    <h1>Most Purchased Products</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>Rank</th>
+            <th>Product Name</th>
+            <th>SKU</th>
+            <th>Total Units Sold</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="product, iterStat : ${productPage.content}">
+            <td th:text="${(productPage.number * productPage.size) + iterStat.count}"></td>
+            <td th:text="${product.productName()}"></td>
+            <td th:text="${product.productSku()}"></td>
+            <td th:text="${product.totalQuantitySold()}"></td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="pagination-controls" th:if="${productPage.totalPages > 1}">
+        <a th:if="${productPage.hasPrevious()}" th:href="@{/admin/top-products(page=${productPage.number - 1})}">Previous</a>
+        <span th:unless="${productPage.hasPrevious()}" class="disabled">Previous</span>
+        <span>Page [[${productPage.number + 1}]] of [[${productPage.totalPages}]]</span>
+        <a th:if="${productPage.hasNext()}" th:href="@{/admin/top-products(page=${productPage.number + 1})}">Next</a>
+        <span th:unless="${productPage.hasNext()}" class="disabled">Next</span>
+    </div>
+</div>
+</body>
+</html>
