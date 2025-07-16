@@ -32,9 +32,7 @@ public class SecurityConfig {
                                 "/cart/update", "/cart/remove", "/checkout",
                                 "/order/place", "/order/confirmed",
                                 "/product/**", "/search-products", "/css/**", "/js/**"
-                        ).permitAll()
-                        // All other requests require a user to be logged in
-                        .anyRequest().authenticated()
+                        ).permitAll().anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")

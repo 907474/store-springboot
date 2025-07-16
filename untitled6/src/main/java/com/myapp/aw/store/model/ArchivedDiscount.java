@@ -20,7 +20,6 @@ public class ArchivedDiscount {
     @Column(nullable = false)
     private BigDecimal discountAmount;
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public OrderArchive getOrderArchive() { return orderArchive; }

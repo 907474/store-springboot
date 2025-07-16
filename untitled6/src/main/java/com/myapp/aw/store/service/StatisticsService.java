@@ -104,7 +104,6 @@ public class StatisticsService {
     }
 
     public Page<TopProductDTO> getTopProducts(Pageable pageable) {
-        // This method is now corrected to handle deleted products
         Map<Long, Integer> quantityMap = orderArchiveRepository.findAll().stream()
                 .flatMap(order -> order.getProductItems().stream())
                 .collect(Collectors.groupingBy(ArchivedProductItem::getProductId, Collectors.summingInt(ArchivedProductItem::getQuantity)));
@@ -129,7 +128,6 @@ public class StatisticsService {
     }
 
     public Page<TopCustomerDTO> getTopCustomers(Pageable pageable) {
-        // This method is now corrected to handle deleted customers
         Map<Long, BigDecimal> revenueMap = orderArchiveRepository.findAll().stream()
                 .filter(order -> order.getCustomerId() != null && order.getCustomerId() != 0L)
                 .collect(Collectors.groupingBy(

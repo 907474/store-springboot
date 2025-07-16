@@ -30,20 +30,16 @@ public class AccountController {
     public String viewAccountPage(Authentication authentication, Model model) {
         String username = authentication.getName();
         model.addAttribute("username", username);
-
-        // Check if the user has any role starting with "ROLE_ADMIN"
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().startsWith("ROLE_ADMIN"));
 
         if (isAdmin) {
-            // If they are an admin, get their roles and show the admin account page
             String roles = authentication.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.joining(", "));
             model.addAttribute("roles", roles);
             return "admin-account";
         } else {
-            // If they are a customer, find their order history
             Customer customer = customerRepository.findByUsername(username)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
 

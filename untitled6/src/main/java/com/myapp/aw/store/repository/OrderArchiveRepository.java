@@ -12,11 +12,9 @@ import java.util.List;
 @Repository
 public interface OrderArchiveRepository extends JpaRepository<OrderArchive, Long> {
 
-    // Original method to find all orders for a customer
     List<OrderArchive> findByCustomerId(Long customerId);
 
     List<OrderArchive> findByOrderPlacementTimeBetween(LocalDateTime start, LocalDateTime end);
 
-    // New method to find orders for a customer with pagination
     Page<OrderArchive> findByCustomerId(Long customerId, Pageable pageable);
 }

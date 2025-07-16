@@ -25,8 +25,7 @@ public class TemporaryOrder {
 
     private LocalDateTime orderPlacementTime;
 
-    // --- NEW FIELD FOR STATUS ---
-    @Enumerated(EnumType.STRING) // Stores the status as a string ("IN_PROGRESS", "FINISHED")
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus status;
 
@@ -49,7 +48,6 @@ public class TemporaryOrder {
         item.setTemporaryOrder(this);
     }
 
-    // Getters and Setters
     public Long getOrderId() { return orderId; }
     public void setOrderId(Long orderId) { this.orderId = orderId; }
     public Long getCustomerId() { return customerId; }

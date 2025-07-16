@@ -23,16 +23,11 @@ public class OrderController {
         Long temporaryOrderId = (Long) session.getAttribute("temporaryOrderId");
 
         if (temporaryOrderId == null) {
-            // Can't place an order without a cart
             return "redirect:/cart";
         }
 
         OrderArchive finalOrder = orderService.finalizeOrder(temporaryOrderId);
-
-        // Clear the cart from the session after successful checkout
         session.removeAttribute("temporaryOrderId");
-
-        // Redirect to a confirmation page with the new permanent order ID
         return "redirect:/order/confirmed?id=" + finalOrder.getOrderId();
     }
 

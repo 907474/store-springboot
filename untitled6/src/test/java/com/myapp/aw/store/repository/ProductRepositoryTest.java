@@ -19,7 +19,6 @@ public class ProductRepositoryTest {
 
     @Test
     public void whenSaveProduct_thenItShouldBeFound() {
-        // Arrange: Create a new product
         Product newProduct = new Product();
         newProduct.setProductName("Test Laptop");
         newProduct.setProductSku("SKU-TEST-001");
@@ -28,17 +27,13 @@ public class ProductRepositoryTest {
         newProduct.setType("Electronics");
         newProduct.setStatus(ProductStatus.DISPLAY);
 
-        // Act: Save the product to the database
         Product savedProduct = productRepository.save(newProduct);
 
-        // Assert: Check that the product was saved and has an ID
         assertThat(savedProduct).isNotNull();
         assertThat(savedProduct.getProductId()).isGreaterThan(0);
 
-        // Act: Find the product by its new ID
         Optional<Product> foundProductOpt = productRepository.findById(savedProduct.getProductId());
 
-        // Assert: Check that the found product exists and its details are correct
         assertThat(foundProductOpt).isPresent();
         assertThat(foundProductOpt.get().getProductName()).isEqualTo("Test Laptop");
     }

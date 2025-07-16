@@ -29,7 +29,6 @@ public class DataInitializer {
             PasswordEncoder passwordEncoder
     ) {
         return args -> {
-            // --- Step 1: Create Admins ---
             if (adminUserRepository.count() == 0) {
                 System.out.println("Creating admin users...");
                 AdminUser adminT3 = new AdminUser();
@@ -54,7 +53,6 @@ public class DataInitializer {
                 adminUserRepository.save(adminT1);
             }
 
-            // --- Step 2: Create Customers ---
             List<Customer> customers = new ArrayList<>();
             if (customerRepository.count() == 0) {
                 System.out.println("Creating default customers...");
@@ -71,8 +69,8 @@ public class DataInitializer {
                 customers = customerRepository.findAll();
             }
 
-            // --- Step 3: Create Products ---
-            List<Product> products; // Declare the list here
+
+            List<Product> products;
             if (productRepository.count() == 0) {
                 System.out.println("Creating 100 sample products...");
                 List<SampleProduct> sampleProducts = List.of(
@@ -171,7 +169,7 @@ public class DataInitializer {
                         new SampleProduct("Stapler", "Office", 8.00)
                 );
 
-                // Use a new list inside this block to avoid the error
+
                 List<Product> productsToSave = new ArrayList<>();
                 AtomicInteger skuCounter = new AtomicInteger(1);
 
@@ -186,7 +184,6 @@ public class DataInitializer {
                     productsToSave.add(product);
                 });
 
-                // Save the new list and assign it to the main 'products' list
                 products = productRepository.saveAll(productsToSave);
                 System.out.println(productsToSave.size() + " sample products created.");
             } else {
@@ -195,7 +192,7 @@ public class DataInitializer {
 
             Random random = new Random();
 
-            // --- Step 4: Create Temporary Orders (Carts) ---
+
             if (temporaryOrderRepository.count() == 0 && !products.isEmpty() && !customers.isEmpty()) {
                 System.out.println("Creating 10 temporary orders (carts)...");
                 for (int i = 0; i < 10; i++) {
@@ -218,7 +215,6 @@ public class DataInitializer {
                 }
             }
 
-            // --- Step 5: Create Archived Orders (Finished) ---
             if (orderArchiveRepository.count() == 0 && !products.isEmpty() && !customers.isEmpty()) {
                 System.out.println("Creating 10 archived orders...");
                 for (int i = 0; i < 10; i++) {

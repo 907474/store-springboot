@@ -13,12 +13,9 @@ import java.util.Optional;
 @Repository
 public interface TemporaryOrderRepository extends JpaRepository<TemporaryOrder, Long> {
 
-    // Used for cart recovery
     Optional<TemporaryOrder> findByOrderIdAndStatus(Long orderId, OrderStatus status);
 
-    // Used by the Admin 'All Orders' page for its paginated view
     Page<TemporaryOrder> findAllByStatus(OrderStatus status, Pageable pageable);
 
-    // Used by the AdminOrderService to get all in-progress orders for combined view
     List<TemporaryOrder> findAllByStatus(OrderStatus status);
 }

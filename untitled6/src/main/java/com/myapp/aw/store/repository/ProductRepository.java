@@ -38,6 +38,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     long countByProductQuantityLessThan(int stockLevel);
 
-    // New method to find all products below a certain stock level
     List<Product> findByProductQuantityLessThan(int stockLevel);
 }

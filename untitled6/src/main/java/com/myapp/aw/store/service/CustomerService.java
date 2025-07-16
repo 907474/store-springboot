@@ -24,7 +24,7 @@ public class CustomerService {
         newCustomer.setUsername(username);
         newCustomer.setPassword(passwordEncoder.encode(rawPassword));
         newCustomer.setRole("ROLE_CUSTOMER");
-        newCustomer.setStatus(UserStatus.ENABLED); // Set default status
+        newCustomer.setStatus(UserStatus.ENABLED);
 
         return customerRepository.save(newCustomer);
     }

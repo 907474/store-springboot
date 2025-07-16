@@ -48,7 +48,6 @@ public class HomeController {
         Page<Product> productPage;
 
         if (keyword != null && !keyword.isEmpty()) {
-            // Use the new method that searches both name and SKU
             productPage = productRepository.findByStatusAndNameOrSku(ProductStatus.DISPLAY, keyword, pageable);
             model.addAttribute("keyword", keyword);
         } else {

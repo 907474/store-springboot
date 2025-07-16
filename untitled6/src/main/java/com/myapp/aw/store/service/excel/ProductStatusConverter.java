@@ -20,17 +20,12 @@ public class ProductStatusConverter implements Converter<ProductStatus> {
         return CellDataTypeEnum.STRING;
     }
 
-    /**
-     * This converts the ProductStatus enum into a String when reading from the database for download.
-     */
+
     @Override
     public WriteCellData<?> convertToExcelData(ProductStatus value, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) {
         return new WriteCellData<>(value.name());
     }
 
-    /**
-     * This converts a String from an uploaded Excel file back into a ProductStatus enum.
-     */
     @Override
     public ProductStatus convertToJavaData(ReadCellData<?> cellData, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) {
         return ProductStatus.valueOf(cellData.getStringValue());

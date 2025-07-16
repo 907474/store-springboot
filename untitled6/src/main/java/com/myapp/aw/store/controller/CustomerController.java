@@ -24,7 +24,6 @@ public class CustomerController {
     @PostMapping("/register")
     public String registerUser(@RequestParam String username, @RequestParam String password) {
         customerService.registerCustomer(username, password);
-        // Redirect to the generic login page with a success indicator
         return "redirect:/login?registered=true";
     }
 }

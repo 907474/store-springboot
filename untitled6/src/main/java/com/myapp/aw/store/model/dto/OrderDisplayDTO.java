@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record OrderDisplayDTO(
-        String displayId, // e.g., "T-1" or "F-1"
+        String displayId,
         Long customerId,
         BigDecimal totalPrice,
         LocalDateTime orderDate,

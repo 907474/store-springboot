@@ -33,12 +33,10 @@ public class ProductExcelDTO {
     @ColumnWidth(20)
     private String type;
 
-    // This annotation now points to our custom converter class
     @ExcelProperty(value = "Status", converter = ProductStatusConverter.class)
     @ColumnWidth(20)
     private ProductStatus status;
 
-    // --- Manual Getters and Setters ---
 
     public Long getProductId() {
         return productId;

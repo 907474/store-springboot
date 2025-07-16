@@ -27,18 +27,15 @@ public class HomeControllerTest {
     @MockBean
     private ProductRepository productRepository;
 
-    // We need to mock the UserDetailsService because Spring Security is active
     @MockBean
     private CustomUserDetailsService customUserDetailsService;
 
     @Test
-    @WithMockUser // Simulate a logged-in user to bypass security checks for this test
+    @WithMockUser
     public void whenGetHomepage_thenReturns200AndIndexView() throws Exception {
-        // Arrange: Set up the mock repository to return an empty page of products
         Page<com.myapp.aw.store.model.Product> emptyPage = new PageImpl<>(Collections.emptyList());
         when(productRepository.findByStatus(any(), any())).thenReturn(emptyPage);
 
-        // Act & Assert: Perform a GET request to "/" and check the results
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk()) // Check for HTTP 200 OK status
                 .andExpect(view().name("index")) // Check that the view returned is "index"
